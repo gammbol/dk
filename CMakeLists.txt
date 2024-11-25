@@ -1,14 +1,19 @@
 cmake_minimum_required(VERSION 3.25)
 
-project(ogl VERSION 0.1)
+project(dungeonKnight VERSION 0.1)
 
 add_subdirectory("include/glfw")
 add_subdirectory("include/glad")
+add_subdirectory("include/shaders")
 
-add_executable(oglg main.cpp)
+add_executable(dk src/dk.cpp)
 
-target_include_directories(oglg 
-    PUBLIC "${PROJECT_SOURCE_DIR}/include/glfw/include"
-    PUBLIC "${PROJECT_SOURCE_DIR}/include/glad/include"
+target_include_directories(dk
+    PUBLIC "include/glfw/include"
+    PUBLIC "include/glad/include"
+    PUBLIC "include/shaders/include"
 )
-target_link_libraries(oglg PUBLIC glfw glad)
+target_link_libraries(dk PUBLIC glfw glad shaders)
+
+file(COPY src/shaders/vertex.glsl DESTINATION shaders/)
+file(COPY src/shaders/fragment.glsl DESTINATION shaders/)
