@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cmath>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <shaders.h>
@@ -26,14 +27,19 @@ int main() {
     char infoLog[512];
 
     float vertices[] = {
-        0.5f, 0.5f, 0.0f,
-        0.5f, -0.5f, 0.0f,
-        -0.5f, -0.5f, 0.0f,
-        -0.5f, 0.5f, 0.0f
+        0.5f, 0.5f, 0.0f,   // top right
+        0.5f, -0.5f, 0.0f,  // bottom right
+        -0.5f, -0.5f, 0.0f, // bottom left
+        -0.5f, 0.5f, 0.0f,  // top left
+        0.0f, 0.5f, 0.0f    // top center
     };
     unsigned int indices[] = {
-        0, 1, 3,
-        1, 2, 3
+        // drawing a square
+        //0, 1, 3,
+        //1, 2, 3
+        //
+        // drawing a triangle
+        1, 2, 4
     };
 
     // GLFW: initialization
@@ -118,6 +124,10 @@ int main() {
         // setting window color
         glClearColor(1.0f, 1.0f, 1.0f, 0.5f);
         glClear(GL_COLOR_BUFFER_BIT);
+
+        float timeValue = glfwGetTime();
+        float greenValue = (std::sin(timeValue) / 2.0f) + 0.5f;
+        shaders.addUniform("ourColor", 0.0f, greenValue, 0.0f, 0.0f);
 
         // instead of glUseProgram(shaderProgram);
         shaders.useProgram();
