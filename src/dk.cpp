@@ -28,17 +28,19 @@ int main() {
     char infoLog[512];
 
     float vertices[] = {
-        0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f, 1.0f, 0.0f, // bottom right
-        -0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,  // bottom left
-        0.0f, 0.5f, 0.0f,   0.0f, 0.0f, 1.0f, 0.5f, 1.0f // top center
+        0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,   1.0f, 0.0f,   // bottom right
+        -0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,   0.0f, 0.0f,   // bottom left
+//      0.0f, 0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.5f, 1.0f    // top center
+        0.5f, 0.5f, 0.0f,   0.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // top right
+        -0.5f, 0.5f, 0.0f,  0.0f, 0.0f, 0.0f,   0.0f, 1.0f,   // top left
     };
     unsigned int indices[] = {
         // drawing a square
-        //0, 1, 3,
-        //1, 2, 3
+        0, 1, 3,
+        0, 2, 3
         //
         // drawing a triangle
-        0, 1, 2
+        //0, 1, 2
     };
     float texCoords[] = {
       0.0f, 0.0f, // bottom left corner
@@ -175,7 +177,7 @@ int main() {
         glBindVertexArray(vao);
         // glDrawArrays(GL_TRIANGLES, 0, 3);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-        glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
         // check and call events and swap the buffers
         glfwSwapBuffers(window);
