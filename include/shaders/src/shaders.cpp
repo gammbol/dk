@@ -3,7 +3,8 @@
 //
 #include <shaders.h>
 
-Shaders::Shaders(const std::string& vss, const std::string& fss): vertex(0), fragment(0), program(0) {
+Shaders::Shaders(const std::string& vss, const std::string& fss): 
+  vertex(0), fragment(0), program(0) {
     std::string line;
     std::ifstream vsf(vss);
     std::ifstream fsf(fss);
@@ -81,6 +82,16 @@ void Shaders::createProgram() {
 
 void Shaders::useProgram() const {
     glUseProgram(program);
+}
+
+void Shaders::addUniform(const char *name, float a, float b, float c, float d) {
+  if (program == 0) {
+    std::cerr << "Program is not initialized!" << std::endl;
+    return;
+  }
+
+  int vertexColorLocation = glGetUniformLocation(program, name);
+  glUniform4f(vertexColorLocation, a, b, c, d);
 }
 
 Shaders::~Shaders()= default;
