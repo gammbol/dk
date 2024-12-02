@@ -3,6 +3,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <shaders.h>
+#include <stb_image.h>
 
 #define WIDTH 800
 #define HEIGHT 600
@@ -27,9 +28,9 @@ int main() {
     char infoLog[512];
 
     float vertices[] = {
-        0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f, // bottom right
-        -0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, // bottom left
-        0.0f, 0.5f, 0.0f,  0.0f, 0.0f, 1.0f, // top left
+        0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f, 1.0f, 0.0f, // bottom right
+        -0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,  // bottom left
+        0.0f, 0.5f, 0.0f,   0.0f, 0.0f, 1.0f, 0.5f, 1.0f // top center
     };
     unsigned int indices[] = {
         // drawing a square
@@ -39,6 +40,12 @@ int main() {
         // drawing a triangle
         0, 1, 2
     };
+    float texCoords[] = {
+      0.0f, 0.0f, // bottom left corner
+      1.0f, 0.0f, // bottom right corner
+      0.5f, 1.0f  // top center corner
+    };
+
 
     // GLFW: initialization
     glfwInit();
@@ -95,6 +102,36 @@ int main() {
     // inserting data into GL_ARRAY_BUFFER (vbo)
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
+
+    //generating a texture
+    unsigned int texture;
+    glGenTextures(1, &texture);
+
+    // binding the texture
+    glBindTexture(GL_TEXTURE_2D, texture);
+
+    // setting the texture wrapping/filtering options
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    // loading an image to the program
+    int width, height, nrChannels;
+    unsigned char *data = stbi_load("images/wall.jpg", &width, &height, &nrChannels, 0);
+
+    // error catching
+    if (data) {
+      // generating the image in the texture
+      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+      glGenerateMipmap(GL_TEXTURE_2D);
+    } else {
+      std::cerr << "Failed to load texture" << std::endl;
+    }
+
+    // freeing the image memory
+    stbi_image_free(data);
+
     // shaders
     Shaders shaders(VERTEX_FILE, FRAGMENT_FILE);
     shaders.compileShaders();
@@ -104,11 +141,14 @@ int main() {
     // glUseProgram(shaderProgram);
 
     // linking vertex attributes
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *) 0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) 0);
     glEnableVertexAttribArray(0);
 
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)(3 * sizeof(float)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
+
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(6 * sizeof(float)));
+    glEnableVertexAttribArray(2);
 
     // note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -129,10 +169,13 @@ int main() {
         // instead of glUseProgram(shaderProgram);
         shaders.useProgram();
 
+        // binding the texture
+        glBindTexture(GL_TEXTURE_2D, texture);
+
         glBindVertexArray(vao);
         // glDrawArrays(GL_TRIANGLES, 0, 3);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
 
         // check and call events and swap the buffers
         glfwSwapBuffers(window);
