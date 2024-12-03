@@ -55,6 +55,9 @@ int main() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
+    // image loading initialization
+    stbi_set_flip_vertically_on_load(true);
+
 #ifdef __APPLE__
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
@@ -106,11 +109,22 @@ int main() {
 
 
     //generating a texture
-    unsigned int texture;
-    glGenTextures(1, &texture);
+    unsigned int textures[2];
+    glGenTextures(2, textures);
 
-    // binding the texture
-    glBindTexture(GL_TEXTURE_2D, texture);
+    // binding the textures[0]
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, textures[0]);
+
+    // setting the texture wrapping/filtering options
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    // binding the textures[1]
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, textures[1]);
 
     // setting the texture wrapping/filtering options
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -122,6 +136,7 @@ int main() {
     int width, height, nrChannels;
     unsigned char *data = stbi_load("images/wall.jpg", &width, &height, &nrChannels, 0);
 
+    glActiveTexture(GL_TEXTURE0);
     // error catching
     if (data) {
       // generating the image in the texture
@@ -130,8 +145,18 @@ int main() {
     } else {
       std::cerr << "Failed to load texture" << std::endl;
     }
-
     // freeing the image memory
+    stbi_image_free(data);
+
+    // loading another texture
+    glActiveTexture(GL_TEXTURE1);
+    data = stbi_load("images/awesomeface.png", &width, &height, &nrChannels, 0);
+    if (data) {
+      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+      glGenerateMipmap(GL_TEXTURE_2D);
+    } else {
+      std::cerr << "Failed to load texture" << std::endl;
+    }
     stbi_image_free(data);
 
     // shaders
@@ -159,6 +184,10 @@ int main() {
     // VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
     glBindVertexArray(0);
 
+    shaders.useProgram();
+    shaders.setInt("texture1", 0);
+    shaders.setInt("texture2", 1);
+
     // main loop
     while (!glfwWindowShouldClose(window)) {
         // processing user keyboard input
@@ -171,8 +200,11 @@ int main() {
         // instead of glUseProgram(shaderProgram);
         shaders.useProgram();
 
-        // binding the texture
-        glBindTexture(GL_TEXTURE_2D, texture);
+        // binding the textures
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, textures[0]);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, textures[1]);
 
         glBindVertexArray(vao);
         // glDrawArrays(GL_TRIANGLES, 0, 3);
