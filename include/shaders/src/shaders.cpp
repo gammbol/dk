@@ -85,13 +85,23 @@ void Shaders::useProgram() const {
 }
 
 void Shaders::addUniform(const char *name, float a, float b, float c, float d) {
-  if (program == 0) {
-    std::cerr << "Program is not initialized!" << std::endl;
+  if (!program) {
+    std::cerr << "Program is not running!" << std::endl;
     return;
   }
 
   int vertexColorLocation = glGetUniformLocation(program, name);
   glUniform4f(vertexColorLocation, a, b, c, d);
+}
+
+void Shaders::setInt(const char *name, int a) {
+  if (!program) {
+    std::cerr << "Program is not running!" << std::endl;
+    return;
+  }
+
+  int nameLocation = glGetUniformLocation(program, name);
+  glUniform1i(nameLocation, a);
 }
 
 Shaders::~Shaders()= default;

@@ -25,6 +25,7 @@ public:
     void createProgram();
     void useProgram() const;
     void addUniform(const char *name, float a, float b, float c, float d);
+    void setInt(const char *name, int a);
     ~Shaders();
 };
 
