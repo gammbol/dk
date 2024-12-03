@@ -84,24 +84,82 @@ void Shaders::useProgram() const {
     glUseProgram(program);
 }
 
-void Shaders::addUniform(const char *name, float a, float b, float c, float d) {
+int Shaders::isRunning() const {
   if (!program) {
     std::cerr << "Program is not running!" << std::endl;
-    return;
+    return 0;
   }
+  return 1;
+}
 
-  int vertexColorLocation = glGetUniformLocation(program, name);
-  glUniform4f(vertexColorLocation, a, b, c, d);
+void Shaders::addUniform(const char *name, float a, float b, float c, float d) {
+  if (!isRunning()) return;
+
+  int nameLocation = glGetUniformLocation(program, name);
+  glUniform4f(nameLocation, a, b, c, d);
 }
 
 void Shaders::setInt(const char *name, int a) {
-  if (!program) {
-    std::cerr << "Program is not running!" << std::endl;
-    return;
-  }
+  if (!isRunning()) return;
 
   int nameLocation = glGetUniformLocation(program, name);
   glUniform1i(nameLocation, a);
+}
+
+void Shaders::setFloat(const char *name, float a) {
+  if (!isRunning()) return;
+
+  int nameLocation = glGetUniformLocation(program, name);
+  glUniform1f(nameLocation, a);
+}
+
+void Shaders::setDouble(const char *name, double a) {
+  if (!isRunning()) return;
+
+  int nameLocation = glGetUniformLocation(program, name);
+  glUniform1d(nameLocation, a);
+}
+
+void Shaders::setUInt(const char *name, unsigned int a) {
+  if (!isRunning()) return;
+
+  int nameLocation = glGetUniformLocation(program, name);
+  glUniform1ui(nameLocation, a);
+}
+
+void Shaders::setBool(const char *name, bool a) {
+  if (!isRunning()) return;
+
+  int nameLocation = glGetUniformLocation(program, name);
+  glUniform1i(nameLocation, a);
+}
+
+void Shaders::setVec2(const char *name, int a, int b) {
+  if (!isRunning()) return;
+
+  int nameLocation = glGetUniformLocation(program, name);
+  glUniform2i(nameLocation, a, b);
+}
+
+void Shaders::setVec3(const char *name, int a, int b, int c) {
+  if (!isRunning()) return;
+
+  int nameLocation = glGetUniformLocation(program, name);
+  glUniform3i(nameLocation, a, b, c);
+}
+
+void Shaders::setVec4(const char *name, int a, int b, int c, int d) {
+  if (!isRunning()) return;
+
+  int nameLocation = glGetUniformLocation(program, name);
+  glUniform4i(nameLocation, a, b, c, d);
+}
+
+void Shaders::setVec3f(const char *name, float a, float b, float c) {
+  if (!isRunning()) return;
+
+  int nameLocation = glGetUniformLocation(program, name);
+  glUniform3f(nameLocation, a, b, c);
 }
 
 Shaders::~Shaders()= default;

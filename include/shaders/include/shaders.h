@@ -24,8 +24,17 @@ public:
     void compileShaders();
     void createProgram();
     void useProgram() const;
+    int isRunning() const;
     void addUniform(const char *name, float a, float b, float c, float d);
     void setInt(const char *name, int a);
+    void setFloat(const char *name, float a);
+    void setDouble(const char *name, double a);
+    void setUInt(const char *name, unsigned int a);
+    void setBool(const char *name, bool a);
+    void setVec2(const char *name, int a, int b);
+    void setVec3(const char *name, int a, int b, int c);
+    void setVec4(const char *name, int a, int b, int c, int d);
+    void setVec3f(const char *name, float a, float b, float c);
     ~Shaders();
 };
 
