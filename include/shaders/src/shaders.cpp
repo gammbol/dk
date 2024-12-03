@@ -92,6 +92,12 @@ int Shaders::isRunning() const {
   return 1;
 }
 
+unsigned int Shaders::getUniLoc(const char *name) const {
+  if (!isRunning()) return 0;
+
+  return glGetUniformLocation(program, name);
+}
+
 void Shaders::addUniform(const char *name, float a, float b, float c, float d) {
   if (!isRunning()) return;
 

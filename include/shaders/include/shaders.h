@@ -24,6 +24,7 @@ public:
     void compileShaders();
     void createProgram();
     void useProgram() const;
+    unsigned int getUniLoc(const char *name) const;
     int isRunning() const;
     void addUniform(const char *name, float a, float b, float c, float d);
     void setInt(const char *name, int a);
