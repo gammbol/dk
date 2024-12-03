@@ -5,6 +5,11 @@
 #include <shaders.h>
 #include <stb_image.h>
 
+// glm
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 #define WIDTH 800
 #define HEIGHT 600
 
@@ -188,6 +193,13 @@ int main() {
     shaders.setInt("texture1", 0);
     shaders.setInt("texture2", 1);
 
+    // test
+    //glm::vec4 vec(1.0f, 0.0f, 0.0f, 1.0f);
+    //glm::mat4 trans = glm::mat4(1.0f);
+    //trans = glm::translate(trans, glm::vec3(1.0f, 1.0f, 0.0f));
+    //vec = trans * vec;
+    //std::cout << vec.x << vec.y << vec.z << std::endl;
+
     // main loop
     while (!glfwWindowShouldClose(window)) {
         // processing user keyboard input
@@ -205,6 +217,13 @@ int main() {
         float redVal = std::cos(timeVal) / 2.0f + 0.5f;
 
         shaders.setVec3f("myVec", redVal, greenVal, 0.0f);
+
+        glm::mat4 trans = glm::mat4(1.0f);
+        //trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));
+        trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+
+        unsigned int transformLoc = shaders.getUniLoc("transform");
+        glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
 
 
         // binding the textures
