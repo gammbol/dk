@@ -10,6 +10,6 @@ uniform vec3 myVec;
 
 void main()
 {
-  //FragColor = mix(texture(texture1, TexCoord), texture(texture2, TexCoord), 0.2);
-  FragColor = vec4(myVec, 1.0);
+  FragColor = mix(texture(texture1, TexCoord), texture(texture2, TexCoord), 0.2);
+  //FragColor = vec4(myVec, 1.0);
 }
