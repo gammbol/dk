@@ -200,6 +200,13 @@ int main() {
         // instead of glUseProgram(shaderProgram);
         shaders.useProgram();
 
+        float timeVal = glfwGetTime();
+        float greenVal = std::sin(timeVal) / 2.0f + 0.5f;
+        float redVal = std::cos(timeVal) / 2.0f + 0.5f;
+
+        shaders.setVec3f("myVec", redVal, greenVal, 0.0f);
+
+
         // binding the textures
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, textures[0]);
