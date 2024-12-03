@@ -8,6 +8,7 @@ add_subdirectory("include/glfw")
 add_subdirectory("include/glad")
 add_subdirectory("include/shaders")
 add_subdirectory("include/stb_image")
+add_subdirectory("include/glm")
 
 add_executable(dk src/dk.cpp)
 
@@ -17,7 +18,7 @@ target_include_directories(dk
     PUBLIC "include/shaders/include"
     PUBLIC "include/stb_image/include"
 )
-target_link_libraries(dk PUBLIC glfw glad shaders stb_image)
+target_link_libraries(dk PUBLIC glfw glad shaders stb_image glm)
 
 file(COPY src/shaders/vertex.glsl DESTINATION shaders/)
 file(COPY src/shaders/fragment.glsl DESTINATION shaders/)
