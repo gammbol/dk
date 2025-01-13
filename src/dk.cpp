@@ -22,7 +22,8 @@ float fov = 45.0f;
 // mouse pos
 bool firstMouse = true;
 float lastX = 400, lastY = 300;
-float yaw, pitch;
+float yaw = -90.0f;
+float pitch = 0.0f;
 
 // camera coords
 glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
@@ -55,6 +56,7 @@ void processInput(GLFWwindow *window) {
 }
 
 void processMouse(GLFWwindow *window, double xposIn, double yposIn) {
+    // dunno why we need those...
     float xpos = static_cast<float>(xposIn);
     float ypos = static_cast<float>(yposIn);
 
@@ -339,13 +341,13 @@ int main() {
 
     // main loop
     while (!glfwWindowShouldClose(window)) {
-        // processing user keyboard input
-        processInput(window);
-
         // timing
         float currentTime = glfwGetTime();
         deltaTime = currentTime - lastFrame;
         lastFrame = currentTime;
+
+        // processing user keyboard input
+        processInput(window);
 
         // setting window color
         glClearColor(1.0f, 1.0f, 1.0f, 0.5f);
@@ -363,11 +365,7 @@ int main() {
         glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
         // view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
 
-        glm::mat4 projection = glm::mat4(1.0f);
-        projection = glm::perspective(glm::radians(fov), (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
-
-
-
+        glm::mat4 projection = glm::perspective(glm::radians(fov), (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
 
         unsigned int viewLoc = shaders.getUniLoc("view");
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
@@ -386,10 +384,7 @@ int main() {
             glm::mat4 model = glm::mat4(1.0f);
             model = glm::translate(model, cubePositions[i]);
             float angle = 20.0f * i;
-            if (i == 0 || i == 2)
-                model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(1.0f, 0.3f, 0.5f));
-            else
-                model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+            model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
             unsigned int modelLoc = shaders.getUniLoc("model");
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
             glDrawArrays(GL_TRIANGLES, 0, 36);
