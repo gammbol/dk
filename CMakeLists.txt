@@ -22,5 +22,6 @@ target_link_libraries(dk PUBLIC glfw glad shaders stb_image glm)
 
 file(COPY src/shaders/vertex.glsl DESTINATION shaders/)
 file(COPY src/shaders/fragment.glsl DESTINATION shaders/)
+file(COPY src/shaders/lightFragment.glsl DESTINATION shaders/)
 file(COPY src/images/wall.jpg DESTINATION images/)
 file(COPY src/images/awesomeface.png DESTINATION images/)

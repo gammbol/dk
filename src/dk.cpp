@@ -13,9 +13,10 @@
 #define WIDTH 800
 #define HEIGHT 600
 
-// shaders defines
+// shader defines
 #define VERTEX_FILE "./shaders/vertex.glsl"
 #define FRAGMENT_FILE "./shaders/fragment.glsl"
+#define LIGHTFRAGMENT_FILE "./shaders/lightFragment.glsl"
 
 float fov = 45.0f;
 
@@ -29,6 +30,9 @@ float pitch = 0.0f;
 glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+
+// light position
+glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 
 // frame timer
 float deltaTime = 0.0f;
@@ -233,15 +237,6 @@ int main() {
     // binding the vao
     glBindVertexArray(vao);
 
-    // element buffer objects
-    unsigned int ebo;
-    glGenBuffers(1, &ebo);
-
-    // binding ebo to the GL_ELEMENT_ARRAY_BUFFER
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-
     // setting the vertex buffer object
     unsigned int vbo;
     glGenBuffers(1, &vbo);
@@ -305,20 +300,31 @@ int main() {
     stbi_image_free(data);
 
 
-    // shaders
-    Shaders shaders(VERTEX_FILE, FRAGMENT_FILE);
-    shaders.compileShaders();
-    shaders.createProgram();
+    // shader
+    Shaders shader(VERTEX_FILE, FRAGMENT_FILE);
+    shader.compileShaders();
+    shader.createProgram();
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    // light vao
+    unsigned int lightVao;
+    glGenVertexArrays(1, &lightVao);
+    glBindVertexArray(lightVao);
+
+    //light shader
+    Shaders lightShader(VERTEX_FILE, LIGHTFRAGMENT_FILE);
+    lightShader.compileShaders();
+    lightShader.createProgram();
 
     // activating the shader program
     // glUseProgram(shaderProgram);
 
     // linking vertex attributes
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *) 0);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
-
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
 
     // note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -327,9 +333,10 @@ int main() {
     // VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
     glBindVertexArray(0);
 
-    shaders.useProgram();
-    shaders.setInt("texture1", 0);
-    shaders.setInt("texture2", 1);
+    shader.useProgram();
+    shader.setVec3f("lightColor", 1.0f, 1.0f, 1.0f);
+    shader.setVec3f("objectColor", 1.0f, 0.5f, 0.31f);
+
 
     // main loop
     while (!glfwWindowShouldClose(window)) {
@@ -342,18 +349,14 @@ int main() {
         processInput(window);
 
         // setting window color
-        glClearColor(1.0f, 1.0f, 1.0f, 0.5f);
+        glClearColor(0.0f, 0.0f, 0.0f, 0.5f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // instead of glUseProgram(shaderProgram);
-        shaders.useProgram();
-
         glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
-        shaders.setMat4("view", view);
-        // view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
-
         glm::mat4 projection = glm::perspective(glm::radians(fov), (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
-        shaders.setMat4("projection", projection);
+
+        // instead of glUseProgram(shaderProgram);
+        shader.useProgram();
 
         // binding the textures
         glActiveTexture(GL_TEXTURE0);
@@ -361,17 +364,24 @@ int main() {
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, textures[1]);
 
+        glm::mat4 model = glm::mat4(1.0f);
+        shader.setMat4("model", model);
+        shader.setMat4("view", view);
+        shader.setMat4("projection", projection);
         glBindVertexArray(vao);
-        for (unsigned int i = 0; i < 10; i++) {
-            glm::mat4 model = glm::mat4(1.0f);
-            model = glm::translate(model, cubePositions[i]);
-            float angle = 20.0f * i;
-            model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-            shaders.setMat4("model", model);
-            glDrawArrays(GL_TRIANGLES, 0, 36);
-        }
+        glDrawArrays(GL_TRIANGLES, 0, 36);
         // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
         // glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+
+        lightShader.useProgram();
+
+        model = glm::translate(model, lightPos);
+        model = glm::scale(model, glm::vec3(0.2f));
+        lightShader.setMat4("model", model);
+        lightShader.setMat4("view", view);
+        lightShader.setMat4("projection", projection);
+        glBindVertexArray(lightVao);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
 
         // check and call events and swap the buffers
         glfwSwapBuffers(window);
