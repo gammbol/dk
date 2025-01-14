@@ -9,6 +9,11 @@
 #include <fstream>
 #include <string>
 
+// glm
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 #include <glad/glad.h>
 
 class Shaders {
@@ -36,6 +41,7 @@ public:
     void setVec3(const char *name, int a, int b, int c);
     void setVec4(const char *name, int a, int b, int c, int d);
     void setVec3f(const char *name, float a, float b, float c);
+    void setMat4(const char *name, glm::mat4 mat);
     ~Shaders();
 };
 

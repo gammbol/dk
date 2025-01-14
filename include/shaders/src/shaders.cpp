@@ -168,4 +168,11 @@ void Shaders::setVec3f(const char *name, float a, float b, float c) {
   glUniform3f(nameLocation, a, b, c);
 }
 
+void Shaders::setMat4(const char *name, glm::mat4 mat) {
+  if (!isRunning()) return;
+
+  int matLoc = glGetUniformLocation(program, name);
+  glUniformMatrix4fv(matLoc, 1, GL_FALSE, glm::value_ptr(mat));
+}
+
 Shaders::~Shaders()= default;

@@ -53,6 +53,12 @@ void processInput(GLFWwindow *window) {
         cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+
+    // up and down movements
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+        cameraPos += cameraSpeed * cameraUp;
+    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+        cameraPos -= cameraSpeed * cameraUp;
 }
 
 void processMouse(GLFWwindow *window, double xposIn, double yposIn) {
@@ -148,6 +154,7 @@ int main() {
     -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
     -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
     };
+
     unsigned int indices[] = {
         // drawing a square
         0, 1, 3,
@@ -156,27 +163,32 @@ int main() {
         // drawing a triangle
         //0, 1, 2
     };
+
     float texCoords[] = {
       0.0f, 0.0f, // bottom left corner
       1.0f, 0.0f, // bottom right corner
       0.5f, 1.0f  // top center corner
     };
 
-    // test field START
-
-
-
-    // test field END
-
+    // cubes
+    glm::vec3 cubePositions[] = {
+        glm::vec3(0.0f, 0.0f, 0.0f),
+        glm::vec3(2.0f, 5.0f, -15.0f),
+        glm::vec3(-1.5f, -2.2f, -2.5f),
+        glm::vec3(-3.8f, -2.0f, -12.3f),
+        glm::vec3(2.4f, -0.4f, -3.5f),
+        glm::vec3(-1.7f, 3.0f, -7.5f),
+        glm::vec3(1.3f, -2.0f, -2.5f),
+        glm::vec3(1.5f, 2.0f, -2.5f),
+        glm::vec3(1.5f, 0.2f, -1.5f),
+        glm::vec3(-1.3f, 1.0f, -1.5f)
+    };
 
     // GLFW: initialization
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-
-
 
     // image loading initialization
     stbi_set_flip_vertically_on_load(true);
@@ -211,6 +223,7 @@ int main() {
     // scroll control
     glfwSetScrollCallback(window, processScroll);
 
+    // z buffer
     glEnable(GL_DEPTH_TEST);
 
     // vertex array object
@@ -291,6 +304,7 @@ int main() {
     }
     stbi_image_free(data);
 
+
     // shaders
     Shaders shaders(VERTEX_FILE, FRAGMENT_FILE);
     shaders.compileShaders();
@@ -317,28 +331,6 @@ int main() {
     shaders.setInt("texture1", 0);
     shaders.setInt("texture2", 1);
 
-
-
-    // test
-    //glm::vec4 vec(1.0f, 0.0f, 0.0f, 1.0f);
-    //glm::mat4 trans = glm::mat4(1.0f);
-    //trans = glm::translate(trans, glm::vec3(1.0f, 1.0f, 0.0f));
-    //vec = trans * vec;
-    //std::cout << vec.x << vec.y << vec.z << std::endl;
-
-    glm::vec3 cubePositions[] = {
-        glm::vec3(0.0f, 0.0f, 0.0f),
-        glm::vec3(2.0f, 5.0f, -15.0f),
-        glm::vec3(-1.5f, -2.2f, -2.5f),
-        glm::vec3(-3.8f, -2.0f, -12.3f),
-        glm::vec3(2.4f, -0.4f, -3.5f),
-        glm::vec3(-1.7f, 3.0f, -7.5f),
-        glm::vec3(1.3f, -2.0f, -2.5f),
-        glm::vec3(1.5f, 2.0f, -2.5f),
-        glm::vec3(1.5f, 0.2f, -1.5f),
-        glm::vec3(-1.3f, 1.0f, -1.5f)
-    };
-
     // main loop
     while (!glfwWindowShouldClose(window)) {
         // timing
@@ -356,22 +348,12 @@ int main() {
         // instead of glUseProgram(shaderProgram);
         shaders.useProgram();
 
-        float timeVal = glfwGetTime();
-        float greenVal = std::sin(timeVal) / 2.0f + 0.5f;
-        float redVal = std::cos(timeVal) / 2.0f + 0.5f;
-
-        shaders.setVec3f("myVec", redVal, greenVal, 0.0f);
-
         glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+        shaders.setMat4("view", view);
         // view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
 
         glm::mat4 projection = glm::perspective(glm::radians(fov), (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
-
-        unsigned int viewLoc = shaders.getUniLoc("view");
-        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-
-        unsigned int projectionLoc = shaders.getUniLoc("projection");
-        glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
+        shaders.setMat4("projection", projection);
 
         // binding the textures
         glActiveTexture(GL_TEXTURE0);
@@ -385,8 +367,7 @@ int main() {
             model = glm::translate(model, cubePositions[i]);
             float angle = 20.0f * i;
             model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-            unsigned int modelLoc = shaders.getUniLoc("model");
-            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+            shaders.setMat4("model", model);
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
         // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
