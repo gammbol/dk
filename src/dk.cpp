@@ -188,6 +188,8 @@ int main() {
         glm::vec3(-1.3f, 1.0f, -1.5f)
     };
 
+    float ambientStrength = 0.1f;
+
     // GLFW: initialization
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -357,6 +359,8 @@ int main() {
 
         // instead of glUseProgram(shaderProgram);
         shader.useProgram();
+
+        shader.setFloat("ambientStrength", ambientStrength);
 
         // binding the textures
         glActiveTexture(GL_TEXTURE0);
