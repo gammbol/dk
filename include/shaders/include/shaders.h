@@ -40,7 +40,7 @@ public:
     void setVec2(const char *name, int a, int b);
     void setVec3(const char *name, int a, int b, int c);
     void setVec4(const char *name, int a, int b, int c, int d);
-    void setVec3f(const char *name, float a, float b, float c);
+    void setVec3f(const char *name, glm::vec3 vec);
     void setMat4(const char *name, glm::mat4 mat);
     ~Shaders();
 };

@@ -161,11 +161,11 @@ void Shaders::setVec4(const char *name, int a, int b, int c, int d) {
   glUniform4i(nameLocation, a, b, c, d);
 }
 
-void Shaders::setVec3f(const char *name, float a, float b, float c) {
+void Shaders::setVec3f(const char *name, glm::vec3 vec) {
   if (!isRunning()) return;
 
   int nameLocation = glGetUniformLocation(program, name);
-  glUniform3f(nameLocation, a, b, c);
+  glUniform3f(nameLocation, vec.x, vec.y, vec.z);
 }
 
 void Shaders::setMat4(const char *name, glm::mat4 mat) {
