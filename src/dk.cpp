@@ -16,6 +16,7 @@
 // shader defines
 #define VERTEX_FILE "./shaders/vertex.vs"
 #define FRAGMENT_FILE "./shaders/fragment.fs"
+#define LIGHTVERTEX_FILE "./shaders/lightvertex.vs"
 #define LIGHTFRAGMENT_FILE "./shaders/lightFragment.fs"
 
 float fov = 45.0f;
@@ -318,7 +319,7 @@ main () {
   glBindVertexArray (lightVao);
 
   // light shader
-  Shaders lightShader (VERTEX_FILE, LIGHTFRAGMENT_FILE);
+  Shaders lightShader (LIGHTVERTEX_FILE, LIGHTFRAGMENT_FILE);
   lightShader.compileShaders ();
   lightShader.createProgram ();
 
@@ -363,7 +364,7 @@ main () {
 
     // instead of glUseProgram(shaderProgram);
     shader.useProgram ();
-
+    shader.setVec3f("lightPos", lightPos);
     shader.setFloat ("ambientStrength", ambientStrength);
 
     // binding the textures
@@ -376,12 +377,18 @@ main () {
     shader.setMat4 ("model", model);
     shader.setMat4 ("view", view);
     shader.setMat4 ("projection", projection);
+    // shader.setVec3f("viewPos", cameraPos);
     glBindVertexArray (vao);
     glDrawArrays (GL_TRIANGLES, 0, 36);
     // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
     // glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 
     lightShader.useProgram ();
+
+    float timeForRotation = glfwGetTime ();
+    lightPos.x = sin (timeForRotation * 0.01745f * deltaTime);
+    lightPos.y = sin (timeForRotation);
+    lightPos.z = cos (timeForRotation)*4;
 
     model = glm::translate (model, lightPos);
     model = glm::scale (model, glm::vec3 (0.2f));
